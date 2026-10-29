@@ -6,3 +6,6 @@ ausgabe/
 # Python-Systemdateien
 __pycache__/
 *.pyc
+
+# Python-Umgebung der App
+.venv/
