@@ -62,6 +62,14 @@ def test_ueberfaelliges_schnuppermitglied_wird_markiert():
     assert not ergebnis.listen['Jungpfadfinder']['Überfällig'].any()
 
 
+def test_schnupper_warnung_auch_bei_datum_als_text():
+    # In manchen Exporten steht das Datum als Text ('23.07.2026') statt als Datumszelle
+    zeilen = [mitglied(6, 'Carl', 'Text', 'Wölfling', typ='Schnuppermitglied', eintritt='23.07.2026')]
+    liste = namitogl.verarbeite(als_export(zeilen), HEUTE).listen['Wölfling']
+    assert liste['Anmeldedatum'].tolist() == ['23.07.2026']
+    assert liste['Überfällig'].tolist() == [True]
+
+
 def test_ueberfaellig_ist_in_excel_rot():
     liste = namitogl.verarbeite(als_export(STANDARD), HEUTE).listen['Wölfling']
     ws = openpyxl.load_workbook(io.BytesIO(namitogl.als_excel(liste, 'Wölfling'))).active

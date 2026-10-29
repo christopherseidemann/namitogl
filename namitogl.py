@@ -72,6 +72,12 @@ def zu_datetime(wert):
         return wert.to_pydatetime()
     if isinstance(wert, datetime):
         return wert
+    if isinstance(wert, str):
+        # Datum als Text, z. B. '23.07.2026'. Festes Format, damit Tag und Monat nie vertauscht werden.
+        try:
+            return datetime.strptime(wert.strip(), "%d.%m.%Y")
+        except ValueError:
+            return None
     return None
 
 
