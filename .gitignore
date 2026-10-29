@@ -1,0 +1,8 @@
+# Excel-Dateien mit Mitgliederdaten (Eingabe und Ausgabe)
+*.xls
+*.xlsx
+ausgabe/
+
+# Python-Systemdateien
+__pycache__/
+*.pyc
