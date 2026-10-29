@@ -81,6 +81,12 @@ def zu_datetime(wert):
     return None
 
 
+def sortierschluessel(spalte):
+    """Deutsche Sortierung (DIN 5007): Groß/klein egal, Ä wie A, Ö wie O, Ü wie U, ß wie ss."""
+    return (spalte.fillna("").astype(str).str.casefold()     # casefold macht auch ß zu ss
+            .str.replace("ä", "a").str.replace("ö", "o").str.replace("ü", "u"))
+
+
 def lies_export(quelle):
     """Liest den NaMi-Export (.xls oder .xlsx). quelle = Dateipfad oder hochgeladene Datei."""
     return pd.read_excel(quelle)
@@ -107,7 +113,7 @@ def stufenliste(df_stufe, heute):
 
     liste = pd.DataFrame(zeilen, columns=["Vorname", "Nachname", "Anmeldedatum", "Überfällig"])
     if not liste.empty:
-        liste = liste.sort_values(["Nachname", "Vorname"]).reset_index(drop=True)
+        liste = liste.sort_values(["Nachname", "Vorname"], key=sortierschluessel).reset_index(drop=True)
     return liste
 
 

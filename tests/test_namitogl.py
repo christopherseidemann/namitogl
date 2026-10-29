@@ -70,6 +70,13 @@ def test_schnupper_warnung_auch_bei_datum_als_text():
     assert liste['Überfällig'].tolist() == [True]
 
 
+def test_sortierung_wie_im_telefonbuch():
+    nachnamen = ['Zimmermann', 'Özdemir', 'de Vries', 'Müller', 'Ahrens']
+    zeilen = [mitglied(i, 'X', n, 'Wölfling') for i, n in enumerate(nachnamen)]
+    liste = namitogl.verarbeite(als_export(zeilen), HEUTE).listen['Wölfling']
+    assert liste['Nachname'].tolist() == ['Ahrens', 'de Vries', 'Müller', 'Özdemir', 'Zimmermann']
+
+
 def test_ueberfaellig_ist_in_excel_rot():
     liste = namitogl.verarbeite(als_export(STANDARD), HEUTE).listen['Wölfling']
     ws = openpyxl.load_workbook(io.BytesIO(namitogl.als_excel(liste, 'Wölfling'))).active
