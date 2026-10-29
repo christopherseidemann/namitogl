@@ -127,33 +127,25 @@ def verarbeite(df, heute=None):
 
     fehler = []
 
+    def melde(zeile, problem):
+        """Ein Eintrag der Fehlerliste, immer mit denselben Spalten."""
+        fehler.append({"Problem": problem,
+                       **{s: zeile.get(s) for s in ["Mitglieds-Nr.", "Vorname", "Nachname",
+                                                    "Stufe/Abteilung", "Mitgliedstyp"]}})
+
     # Pflichtfelder prüfen
     for _, zeile in df_aktiv.iterrows():
         if pd.isna(zeile.get("Vorname")) or pd.isna(zeile.get("Nachname")):
-            fehler.append({
-                "Mitglieds-Nr.": zeile.get("Mitglieds-Nr.", ""),
-                "Problem":       "Vorname oder Nachname fehlt",
-                "Stufe":         zeile.get("Stufe/Abteilung", ""),
-                "Mitgliedstyp":  zeile.get("Mitgliedstyp", ""),
-            })
+            melde(zeile, "Vorname oder Nachname fehlt")
 
     # Pro Stufe eine Liste
     listen = {stufe: stufenliste(df_aktiv[df_aktiv["Stufe/Abteilung"] == stufe], heute)
               for stufe in STUFEN}
 
     # Mitglieder ohne bekannte Stufe → Fehler
-    unbekannte = df_aktiv[
-        ~df_aktiv["Stufe/Abteilung"].isin(STUFEN) |
-        df_aktiv["Stufe/Abteilung"].isna()
-    ]
-    for _, zeile in unbekannte.iterrows():
-        fehler.append({
-            "Mitglieds-Nr.": zeile.get("Mitglieds-Nr.", ""),
-            "Vorname":       zeile.get("Vorname", ""),
-            "Nachname":      zeile.get("Nachname", ""),
-            "Problem":       f"Unbekannte oder fehlende Stufe: '{zeile.get('Stufe/Abteilung', '')}'",
-            "Mitgliedstyp":  zeile.get("Mitgliedstyp", ""),
-        })
+    for _, zeile in df_aktiv[~df_aktiv["Stufe/Abteilung"].isin(STUFEN)].iterrows():
+        stufe = zeile.get("Stufe/Abteilung")
+        melde(zeile, "Stufe fehlt" if pd.isna(stufe) else f"Unbekannte Stufe: '{stufe}'")
 
     return Ergebnis(listen=listen, fehler=pd.DataFrame(fehler),
                     anzahl_gesamt=len(df), anzahl_aktiv=len(df_aktiv))

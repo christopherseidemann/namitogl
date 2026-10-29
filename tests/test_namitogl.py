@@ -91,6 +91,17 @@ def test_mitglied_ohne_stufe_landet_in_der_fehlerliste():
     assert fehler['Nachname'].tolist() == ['Ohnestufe']
 
 
+def test_fehlerliste_hat_einheitliche_spalten_und_lesbare_gruende():
+    zeilen = [mitglied(7, None, 'Ohnevorname', 'Pfadfinder'),
+              mitglied(8, 'Gustav', 'Ohnestufe', None),
+              mitglied(9, 'Hanna', 'Leitung', 'Leiter')]
+    fehler = namitogl.verarbeite(als_export(zeilen), HEUTE).fehler
+    assert list(fehler.columns) == ['Problem', 'Mitglieds-Nr.', 'Vorname', 'Nachname',
+                                    'Stufe/Abteilung', 'Mitgliedstyp']
+    assert fehler['Problem'].tolist() == ['Vorname oder Nachname fehlt', 'Stufe fehlt',
+                                          "Unbekannte Stufe: 'Leiter'"]
+
+
 def test_kommandozeile_schreibt_eine_datei_pro_stufe(tmp_path):
     export = tmp_path / 'export.xlsx'
     pd.DataFrame(STANDARD).to_excel(export, index=False)
